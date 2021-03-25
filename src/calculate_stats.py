@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 
 RESOURCES_PATH = "../resources/"
 
+
 class CalculateStats:
     def __init__(self, path):
 
@@ -14,7 +15,9 @@ class CalculateStats:
         data_frame = pd.read_csv(path)
         CalculateStats.plot_number_of_houses_vs_house_prices(data_frame)
         feature_list = CalculateStats.numeric_features_correlation(data_frame)
-        CalculateStats.plot_sale_price_vs_highly_correlated_features(data_frame, feature_list)
+        CalculateStats.plot_sale_price_vs_highly_correlated_features(
+            data_frame, feature_list
+        )
 
     @staticmethod
     def render_mpl_table(
@@ -61,7 +64,9 @@ class CalculateStats:
         plt.title("Number of Houses vs House Prices")
         plt.xlabel("House Prices")
         plt.ylabel("Number of Houses")
-        plt.savefig(os.path.join(RESOURCES_PATH, "number_of_houses_vs_house_prices.png"))
+        plt.savefig(
+            os.path.join(RESOURCES_PATH, "number_of_houses_vs_house_prices.png")
+        )
         plt.close("all")
 
     @staticmethod
@@ -84,7 +89,9 @@ class CalculateStats:
             x, y = data_frame[feature].values, data_frame["SalePrice"].values
             m, b = np.polyfit(x, y, 1)
 
-            plt.plot(x, m*x + b, color="#e41a1c", label="y={}x + {}".format(int(m), int(b)))
+            plt.plot(
+                x, m * x + b, color="#e41a1c", label="y={}x + {}".format(int(m), int(b))
+            )
 
             plt.scatter(x=x, y=y)
             plt.title("Sale Price vs {}".format(feature))
@@ -92,5 +99,8 @@ class CalculateStats:
             plt.xlabel(feature)
             plt.legend(loc="upper right")
 
-            plt.savefig(os.path.join(RESOURCES_PATH, "sale_price_vs_{}.png".format(feature)), bbox_inches='tight')
+            plt.savefig(
+                os.path.join(RESOURCES_PATH, "sale_price_vs_{}.png".format(feature)),
+                bbox_inches="tight",
+            )
             plt.close("all")
