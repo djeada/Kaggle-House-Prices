@@ -21,11 +21,12 @@ def clean_data(path):
 
     # convert to numeric
     non_numeric_features = data_frame.select_dtypes(exclude=[np.number])
-    
+
     for feature in non_numeric_features:
-        mapping = {value : i for i, value in enumerate(data_frame[feature].unique())}
-        data_frame[feature] = data_frame[feature].replace(mapping.keys(), mapping.values())
-  
+        mapping = {value: i for i, value in enumerate(data_frame[feature].unique())}
+        data_frame[feature] = data_frame[feature].replace(
+            mapping.keys(), mapping.values()
+        )
 
     # dissregard unimportant features
     data_frame.drop(["Id"], axis=1, inplace=True)
@@ -42,7 +43,7 @@ def split_data(path):
     x = data_frame.loc[:, data_frame.columns != "SalePrice"]
     y = data_frame.loc[:, data_frame.columns == "SalePrice"]
 
-    train_test_data = train_test_split(x, y, test_size=1/3, random_state=85)
+    train_test_data = train_test_split(x, y, test_size=1 / 3, random_state=85)
 
     dir_path = os.path.dirname(path) + os.sep
 
@@ -81,6 +82,7 @@ def main():
     train_features, test_feature, train_labels, test_labels = split_data(
         clean_data_path
     )
+
 
 if __name__ == "__main__":
     main()
