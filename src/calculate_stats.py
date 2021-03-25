@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
+import os
 from matplotlib import pyplot as plt
 
 RESOURCES_PATH = "../resources/"
 
-
 class CalculateStats:
     def __init__(self, path):
+
+        if not os.path.exists(RESOURCES_PATH):
+            os.makedirs(RESOURCES_PATH)
+
         df = pd.read_csv(path)
         CalculateStats.plot_number_of_houses_vs_house_prices(df)
         feature_list = CalculateStats.numeric_features_correlation(df)
@@ -54,10 +58,10 @@ class CalculateStats:
         desc = df.SalePrice.describe().T
         desc = desc.round(2)
         fig = plt.hist(df.SalePrice)
-        plt.title("Mean")
-        plt.xlabel("value")
-        plt.ylabel("Frequency")
-        plt.savefig("abc.png")
+        plt.title("Number of Houses vs House Prices")
+        plt.xlabel("House Prices")
+        plt.ylabel("Number of Houses")
+        plt.savefig(os.path.join(RESOURCES_PATH, "number_of_houses_vs_house_prices.png"))
         plt.close("all")
 
     @staticmethod
@@ -68,11 +72,10 @@ class CalculateStats:
         df = (corr["SalePrice"].sort_values(ascending=False)[1:6]).to_frame().T
         df = df.round(2)
         fig, ax = CalculateStats.render_mpl_table(df)
-        fig.savefig("table.png")
+        fig.savefig(os.path.join(RESOURCES_PATH, "numeric_features_correlation.png"))
         plt.close("all")
 
         return list(df.columns.values)
-
 
     @staticmethod
     def plot_sale_price_vs_highly_correlated_features(df, feature_list):
@@ -83,9 +86,8 @@ class CalculateStats:
 
             plt.plot(x, m*x + b, color="#e41a1c")
 
-
             plt.scatter(x=x, y=y)
             plt.ylabel("Sale Price")
             plt.xlabel(feature)
-            plt.savefig("sale_price_vs_{}.png".format(feature))
+            plt.savefig(os.path.join(RESOURCES_PATH, "sale_price_vs_{}.png".format(feature)))
             plt.close("all")
