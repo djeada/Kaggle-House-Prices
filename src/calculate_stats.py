@@ -84,10 +84,13 @@ class CalculateStats:
             x, y = df[feature].values, df["SalePrice"].values
             m, b = np.polyfit(x, y, 1)
 
-            plt.plot(x, m*x + b, color="#e41a1c")
+            plt.plot(x, m*x + b, color="#e41a1c", label="y={}x + {}".format(int(m), int(b)))
 
             plt.scatter(x=x, y=y)
+            plt.title("Sale Price vs {}".format(feature))
             plt.ylabel("Sale Price")
             plt.xlabel(feature)
-            plt.savefig(os.path.join(RESOURCES_PATH, "sale_price_vs_{}.png".format(feature)))
+            plt.legend(loc="upper right")
+
+            plt.savefig(os.path.join(RESOURCES_PATH, "sale_price_vs_{}.png".format(feature)), bbox_inches='tight')
             plt.close("all")
