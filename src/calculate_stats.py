@@ -11,10 +11,10 @@ class CalculateStats:
         if not os.path.exists(RESOURCES_PATH):
             os.makedirs(RESOURCES_PATH)
 
-        df = pd.read_csv(path)
-        CalculateStats.plot_number_of_houses_vs_house_prices(df)
-        feature_list = CalculateStats.numeric_features_correlation(df)
-        CalculateStats.plot_sale_price_vs_highly_correlated_features(df, feature_list)
+        data_frame = pd.read_csv(path)
+        CalculateStats.plot_number_of_houses_vs_house_prices(data_frame)
+        feature_list = CalculateStats.numeric_features_correlation(data_frame)
+        CalculateStats.plot_sale_price_vs_highly_correlated_features(data_frame, feature_list)
 
     @staticmethod
     def render_mpl_table(
@@ -54,10 +54,10 @@ class CalculateStats:
         return ax.get_figure(), ax
 
     @staticmethod
-    def plot_number_of_houses_vs_house_prices(df):
-        desc = df.SalePrice.describe().T
+    def plot_number_of_houses_vs_house_prices(data_frame):
+        desc = data_frame.SalePrice.describe().T
         desc = desc.round(2)
-        fig = plt.hist(df.SalePrice)
+        fig = plt.hist(data_frame.SalePrice)
         plt.title("Number of Houses vs House Prices")
         plt.xlabel("House Prices")
         plt.ylabel("Number of Houses")
@@ -65,23 +65,23 @@ class CalculateStats:
         plt.close("all")
 
     @staticmethod
-    def numeric_features_correlation(df):
-        numeric_features = df.select_dtypes(include=[np.number])
+    def numeric_features_correlation(data_frame):
+        numeric_features = data_frame.select_dtypes(include=[np.number])
         corr = numeric_features.corr()
 
-        df = (corr["SalePrice"].sort_values(ascending=False)[1:6]).to_frame().T
-        df = df.round(2)
-        fig, ax = CalculateStats.render_mpl_table(df)
+        data_frame = (corr["SalePrice"].sort_values(ascending=False)[1:6]).to_frame().T
+        data_frame = data_frame.round(2)
+        fig, ax = CalculateStats.render_mpl_table(data_frame)
         fig.savefig(os.path.join(RESOURCES_PATH, "numeric_features_correlation.png"))
         plt.close("all")
 
-        return list(df.columns.values)
+        return list(data_frame.columns.values)
 
     @staticmethod
-    def plot_sale_price_vs_highly_correlated_features(df, feature_list):
+    def plot_sale_price_vs_highly_correlated_features(data_frame, feature_list):
 
         for feature in feature_list:
-            x, y = df[feature].values, df["SalePrice"].values
+            x, y = data_frame[feature].values, data_frame["SalePrice"].values
             m, b = np.polyfit(x, y, 1)
 
             plt.plot(x, m*x + b, color="#e41a1c", label="y={}x + {}".format(int(m), int(b)))
