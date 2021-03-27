@@ -9,6 +9,27 @@ Exemplary solution to Kaggle's Data Science competition: House Prices - Advanced
 
 <a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques">Read more.</a>
 
+<h1>Installation</h1>
+
+Follow the steps:
+
+- Download this repository: ```bash git clone https://github.com/djeada/kaggle-titanic.git```
+- Install <i>virtualenv</i>.
+- Open the terminal in the project directory and run following commands:
+
+```bash
+virtualenv env
+source env/bin/activate
+pip3 install -r requirements.txt
+cd src
+python3 main.py
+```
+
+<h1>Cleaning Data</h1>
+
+<h1>General Statistics</h1>
+It is always a good idea to take a look at some basic statistics before using any machine learning. Some trends in the data might be obvious and could help us later in understanding predictions of different machine learning algorithms.
+
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/number_of_houses_vs_house_prices.png)
 
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/numeric_features_correlation.png)
@@ -22,5 +43,7 @@ Exemplary solution to Kaggle's Data Science competition: House Prices - Advanced
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/sale_price_vs_OverallQual.png)
 
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/sale_price_vs_TotalBsmtSF.png)
+
+<h1>Results</h1>
 
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/model_comparison.png)
