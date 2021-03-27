@@ -6,7 +6,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pandas.plotting import table
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    r2_score,
+    mean_squared_error,
+)
 from time import time
 
 from calculate_stats import CalculateStats
@@ -38,9 +44,7 @@ def clean_data(path):
         )
 
     # dissregard unimportant features
-    corr = data_frame.select_dtypes(include=[np.number]).corr()
-    for column in (corr["SalePrice"].sort_values(ascending=False)[6:]).to_frame().T:
-        data_frame.drop([column], axis=1, inplace=True)
+    data_frame.drop(["Id"], axis=1, inplace=True)
 
     save_file_name = os.path.dirname(path) + os.sep + "house_prices_cleaned.csv"
     data_frame.to_csv(save_file_name, encoding="utf-8", index=False)
@@ -86,9 +90,8 @@ def compare_results(models_paths, save_path, features_path, labels_path):
 
     results = {
         "Model": [],
-        "Accuracy": [],
-        "Precision": [],
-        "Recall": [],
+        "R^2": [],
+        "NRMSE": [],
         "Latency": [],
     }
 
@@ -100,16 +103,11 @@ def compare_results(models_paths, save_path, features_path, labels_path):
         end = time()
 
         results["Model"].append(os.path.splitext(os.path.basename(path))[0])
-        results["Accuracy"].append(round(accuracy_score(labels, prediction.round()), 3))
-        results["Precision"].append(
+        results["R^2"].append(round(r2_score(labels, prediction.round()), 3))
+        results["NRMSE"].append(
             round(
-                precision_score(labels, prediction.round(), average="micro"),
-                3,
-            )
-        )
-        results["Recall"].append(
-            round(
-                recall_score(labels, prediction.round(), average="micro"),
+                np.sqrt(mean_squared_error(labels, prediction.round()))
+                / np.std(prediction.round()),
                 3,
             )
         )
