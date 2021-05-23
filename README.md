@@ -49,3 +49,5 @@ It is always a good idea to take a look at some basic statistics before using an
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/model_comparison.png)
 
 A high R-square of more than 60% (0.60) indicates that values can be accurately estimated with some precision.
+
+TODO: graph actual values vs predicted: y - frequency, x - value.
