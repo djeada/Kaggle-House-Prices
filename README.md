@@ -13,9 +13,14 @@ Exemplary solution to Kaggle's Data Science competition: House Prices - Advanced
 
 Follow the steps:
 
-- Download this repository: ```bash git clone https://github.com/djeada/kaggle-titanic.git```
-- Install <i>virtualenv</i>.
-- Open the terminal in the project directory and run following commands:
+- Download this repository: 
+ 
+ ```bash 
+ git clone https://github.com/djeada/kaggle-titanic.git
+ ```
+ 
+- Install <i>virtualenv</i> (if it's not already installed).
+- Open the terminal from the project directory and run the following commands:
 
 ```bash
 virtualenv env
@@ -28,7 +33,7 @@ python3 main.py
 <h1>Cleaning Data</h1>
 
 <h1>General Statistics</h1>
-It is always a good idea to take a look at some basic statistics before using any machine learning. Some trends in the data might be obvious and could help us later in understanding predictions of different machine learning algorithms.
+It is always a good idea to take a look at some basic statistics before using any machine learning. Some trends in the data might be obvious and could help us later to understand the predictions of different machine learning algorithms.
 
 ![alt text](https://github.com/djeada/kaggle-house-prices/blob/main/resources/number_of_houses_vs_house_prices.png)
 
