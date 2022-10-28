@@ -5,6 +5,7 @@ def create_prediction_table(
     test_x: pd.DataFrame,
     test_y: pd.DataFrame,
     predicted_y: pd.DataFrame,
+    model_name: str,
     save_to_file: bool = False,
 ) -> pd.DataFrame:
     """
@@ -16,13 +17,17 @@ def create_prediction_table(
     :param save_to_file: Whether to save the table to file.
     :return: The prediction table.
     """
-    difference_between_test_and_predicted = test_y - predicted_y
 
-    prediction_table = pd.concat(
-        [test_x, test_y, predicted_y, difference_between_test_and_predicted], axis=1
-    )
+    prediction_table = test_x.join([test_y, predicted_y])
+
+    for expected_y_header, predicted_y_header in zip(
+        test_y.columns, predicted_y.columns
+    ):
+        prediction_table[f"{expected_y_header}_diff"] = (
+            prediction_table[expected_y_header] - prediction_table[predicted_y_header]
+        )
 
     if save_to_file:
-        prediction_table.to_csv("../output/prediction_table.csv")
+        prediction_table.to_csv(f"../output/prediction_table_{model_name}.csv")
 
     return prediction_table

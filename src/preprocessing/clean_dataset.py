@@ -17,7 +17,7 @@ class BaseFilter(ABC):
         pass
 
 
-class MissingValuesFilter(BaseFilter):
+class FillMissingValuesFilter(BaseFilter):
     def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
         """
         Fills missing values using the mean of the column.
@@ -46,7 +46,7 @@ class DropFeaturesFilter(BaseFilter):
         return data_frame.drop(self.columns_to_drop, axis=1)
 
 
-class ToNumericFilter(BaseFilter):
+class EncodeCategoricalVariablesFilter(BaseFilter):
     def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
         """
         Converts non-numeric features to numeric.
@@ -67,7 +67,10 @@ class ToNumericFilter(BaseFilter):
 
 def clean_data(
     data_frame: pd.DataFrame,
-    filters_types: Iterable[BaseFilter] = (ToNumericFilter, MissingValuesFilter),
+    filters_types: Iterable[BaseFilter] = (
+        EncodeCategoricalVariablesFilter,
+        FillMissingValuesFilter,
+    ),
 ) -> pd.DataFrame:
     """
     Clean the given data frame using the given filters.
