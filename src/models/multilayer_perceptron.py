@@ -4,46 +4,58 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV
 from sklearn.neural_network import MLPClassifier
 
+from src.models.base_model import BaseModel
 
-class MultilayerPerceptron:
-    def __init__(self, save_path, features_path, values_path):
-        self.create_model(features_path, values_path)
-        self.save_results(save_path)
 
-    def create_model(self, features_path, values_path):
+class MultilayerPerceptron(BaseModel):
+    """
+    Multilayer Perceptron implementation using sklearn.
+    """
 
-        features = pd.read_csv(features_path)
-        labels = pd.read_csv(values_path)
-
-        model = MLPClassifier(max_iter=2000)
-        parameters = {
+    def __init__(
+        self,
+        parameters={
             "hidden_layer_sizes": [(10,), (50,), (100,)],
             "activation": ["logistic"],
             "solver": ["adam"],
             "learning_rate": ["adaptive"],
-        }
+        },
+    ):
+        self.model = GridSearchCV(
+            MLPClassifier(max_iter=2000), parameters, cv=3, scoring="accuracy"
+        )
 
-        self.results = GridSearchCV(model, parameters, cv=3, scoring="accuracy")
-        self.results.fit(features, labels.values.ravel())
+    def fit(self, x, y):
+        """
+        Train the model on the given data.
 
-    def save_results(self, save_path):
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+        :param x: The input data.
+        :param y: The output data.
+        :return: The trained model.
+        """
+        self.model.fit(x, y)
 
-        self.path = os.path.join(save_path, self.__class__.__name__ + ".pkl")
-        joblib.dump(self.results.best_estimator_, self.path)
+    def predict(self, x):
+        """
+        Predict the labels for the given data.
 
-    def mean(self):
-        return round(self.results.cv_results_["mean_test_score"], 3)
+        :param x: The input data.
+        :return: The predicted labels.
+        """
+        return self.model.predict(x)
 
-    def std(self):
-        return round(self.results.cv_results_["std_test_score"], 3)
+    def save(self, path):
+        """
+        Serialize the model to the given path.
 
-    def results(self):
-        return self.results.cv_results_["params"]
+        :param path: The path to save the model to.
+        """
+        joblib.dump(self.model, path)
 
-    def get_path(self):
-        if self.path is not None:
-            return self.path
+    def load(self, path):
+        """
+        Load the model from the given path.
 
-        return ""
+        :param path: The path to load the model from.
+        """
+        self.model = joblib.load(path)

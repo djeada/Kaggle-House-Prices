@@ -1,25 +1,83 @@
-def clean_data(path):
-    data_frame = pd.read_csv(path)
+from abc import abstractmethod, ABC
+from typing import Iterable
 
-    # fill missing data for numeric features
-    numeric_features = data_frame.select_dtypes(include=[np.number])
+import numpy as np
+import pandas as pd
 
-    for feature in numeric_features:
-        data_frame[feature].fillna(data_frame[feature].mean(), inplace=True)
 
-    # convert to numeric
-    non_numeric_features = data_frame.select_dtypes(exclude=[np.number])
+class BaseFilter(ABC):
+    @abstractmethod
+    def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+        """
+        Run the filter on the given data frame.
 
-    for feature in non_numeric_features:
-        mapping = {value: i for i, value in enumerate(data_frame[feature].unique())}
-        data_frame[feature] = data_frame[feature].replace(
-            mapping.keys(), mapping.values()
-        )
+        :param data_frame: The data frame to run the filter on.
+        :return: The filtered data frame.
+        """
+        pass
 
-    # dissregard unimportant features
-    data_frame.drop(["Id"], axis=1, inplace=True)
 
-    save_file_name = os.path.dirname(path) + os.sep + "house_prices_cleaned.csv"
-    data_frame.to_csv(save_file_name, encoding="utf-8", index=False)
+class MissingValuesFilter(BaseFilter):
+    def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+        """
+        Fills missing values using the mean of the column.
 
-    return save_file_name
+        :param data_frame: The data frame to run the filter on.
+        :return: The filtered data frame.
+        """
+
+        for column in data_frame.columns:
+            data_frame[column].fillna(data_frame[column].mean(), inplace=True)
+
+        return data_frame
+
+
+class DropFeaturesFilter(BaseFilter):
+    def __init__(self, columns_to_drop):
+        self.columns_to_drop = columns_to_drop
+
+    def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+        """
+        Drops the given columns from the data frame.
+
+        :param data_frame: The data frame to run the filter on.
+        :return: The filtered data frame.
+        """
+        return data_frame.drop(self.columns_to_drop, axis=1)
+
+
+class ToNumericFilter(BaseFilter):
+    def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+        """
+        Converts non-numeric features to numeric.
+
+        :param data_frame: The data frame to run the filter on.
+        :return: The filtered data frame.
+        """
+        non_numeric_features = data_frame.select_dtypes(exclude=[np.number])
+
+        for feature in non_numeric_features:
+            mapping = {value: i for i, value in enumerate(data_frame[feature].unique())}
+            data_frame[feature] = data_frame[feature].replace(
+                mapping.keys(), mapping.values()
+            )
+
+        return data_frame
+
+
+def clean_data(
+    data_frame: pd.DataFrame,
+    filters_types: Iterable[BaseFilter] = (ToNumericFilter, MissingValuesFilter),
+) -> pd.DataFrame:
+    """
+    Clean the given data frame using the given filters.
+
+    :param data_frame: The data frame to clean.
+    :param filters: The filters to use.
+    :return: The cleaned data frame.
+    """
+    for clean_filter_type in filters_types:
+        clean_filter = clean_filter_type()
+        data_frame = clean_filter.run(data_frame)
+
+    return data_frame

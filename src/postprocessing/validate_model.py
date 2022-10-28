@@ -1,34 +1,77 @@
-def compare_results(models_paths, save_path, features_path, labels_path):
+def calculate_r2_score(test_y: np.ndarray, predicted_y: np.ndarray) -> float:
+    """
+    Calculates the R^2 score.
 
-    features = pd.read_csv(features_path)
-    labels = pd.read_csv(labels_path)
+    :param test_y: The test output data.
+    :param predicted_y: The predicted output data.
+    :return: The R^2 score.
+    """
+    return r2_score(test_y, predicted_y)
 
-    results = {
-        "Model": [],
-        "R^2": [],
-        "NRMSE": [],
-        "Latency": [],
-    }
 
-    for path in models_paths:
-        model = joblib.load(path)
+def calculate_rmse(test_y: np.ndarray, predicted_y: np.ndarray) -> float:
+    """
+    Calculates the RMSE.
 
-        start = time()
-        prediction = model.predict(features)
-        end = time()
+    :param test_y: The test output data.
+    :param predicted_y: The predicted output data.
+    :return: The RMSE.
+    """
+    return np.sqrt(mean_squared_error(test_y, predicted_y))
 
-        results["Model"].append(os.path.splitext(os.path.basename(path))[0])
-        results["R^2"].append(round(r2_score(labels, prediction.round()), 3))
-        results["NRMSE"].append(
-            round(
-                np.sqrt(mean_squared_error(labels, prediction.round()))
-                / np.std(prediction.round()),
-                3,
-            )
+
+def calculate_nrmse(test_y: np.ndarray, predicted_y: np.ndarray) -> float:
+    """
+    Calculates the NRMSE.
+
+    :param test_y: The test output data.
+    :param predicted_y: The predicted output data.
+    :return: The NRMSE.
+    """
+    return np.sqrt(mean_squared_error(test_y, predicted_y)) / np.std(predicted_y)
+
+
+def calculate_mae(test_y: np.ndarray, predicted_y: np.ndarray) -> float:
+    """
+    Calculates the MAE.
+
+    :param test_y: The test output data.
+    :param predicted_y: The predicted output data.
+    :return: The MAE.
+    """
+    return mean_absolute_error(test_y, predicted_y)
+
+
+def compare_models(
+    models: Iterable[BaseModel],
+    test_x: pd.DataFrame,
+    test_y: pd.DataFrame,
+    save_to_file: bool = False,
+) -> pd.DataFrame:
+    """
+    Compares the performance of the given models.
+
+    :param models: The models to compare.
+    :param test_x: The test input data.
+    :param test_y: The test output data.
+    :param save_to_file: Whether to save the table to file.
+    :return: The comparison table.
+    """
+    scores = []
+    for model in models:
+        predicted_y = model.predict(test_x)
+        scores.append(
+            {
+                "model": model.name,
+                "r2_score": calculate_r2_score(test_y, predicted_y),
+                "rmse": calculate_rmse(test_y, predicted_y),
+                "nrmse": calculate_nrmse(test_y, predicted_y),
+                "mae": calculate_mae(test_y, predicted_y),
+            }
         )
-        results["Latency"].append(round((end - start) * 1000, 1))
 
-    df = pd.DataFrame(results)
+    comparison_table = pd.DataFrame(scores)
+    if save_to_file:
+        comparison_table.to_csv("data/comparison_table.csv")
 
-    fig, ax = CalculateStats.render_mpl_table(df, header_columns=0)
-    fig.savefig(os.path.join(save_path, "model_comparison.png"))
+    return comparison_table

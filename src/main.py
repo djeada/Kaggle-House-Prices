@@ -1,59 +1,69 @@
-import os
-import errno
-import joblib
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from pandas.plotting import table
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    r2_score,
-    mean_squared_error,
-)
-from time import time
 
-from src.preprocessing.explore_dataset import CalculateStats
 from src.models.linear_regression import LinearRegression
 from src.models.multilayer_perceptron import MultilayerPerceptron
 from src.models.random_forest import RandomForest
+from src.postprocessing.prediction_table import create_prediction_table
+from src.preprocessing.clean_dataset import clean_data
+from src.preprocessing.split_dataset import split_dataset
 
-DATASET_PATH = "../datasets/train.csv"
-MODELS_DIR = "../models"
-RESOURCES_PATH = "../resources/"
-
-
-def train_models(models, path, features_path, labels_path):
-
-    return [model(path, features_path, labels_path).get_path() for model in models]
+DATASET_PATH = "../data/train.csv"
+LABELS_HEADERS = ["SalePrice"]
 
 
 def main():
 
     ### Preprocessing (input dataset -> preprcoessing -> ready dataset)
+    print("Preprocessing...")
 
-    ### Models
+    raw_dataset = pd.read_csv(DATASET_PATH)
 
-    if not os.path.isfile(DATASET_PATH):
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), DATASET_PATH)
+    print("Cleaning dataset...")
+    clean_dataset = clean_data(raw_dataset)
+    print("Dataset cleaned.")
 
-    clean_data_path = clean_data(DATASET_PATH)
+    # Split the dataset into train and test sets
 
-    CalculateStats(clean_data_path)
-    train_features, test_feature, train_labels, test_labels = split_data(
-        clean_data_path
-    )
+    print("Splitting dataset...")
+    x_dataset = clean_dataset.drop(LABELS_HEADERS, axis=1)
+    y_dataset = clean_dataset[LABELS_HEADERS]
 
-    models = [
+    dataset_split = split_dataset(x_dataset, y_dataset, save_to_file=True)
+
+    print("Preprocessing finished.")
+
+    ### Training (ready dataset -> train -> model)
+    print("Training...")
+
+    model_types = [
         LinearRegression,
         MultilayerPerceptron,
         RandomForest,
     ]
 
-    results_paths = train_models(models, MODELS_DIR, train_features, train_labels)
-    compare_results(results_paths, RESOURCES_PATH, test_feature, test_labels)
+    models = []
+
+    for model_type in model_types:
+        print(f"Training {model_type.__name__}...")
+        model = model_type()
+        model.fit(dataset_split.train_x, dataset_split.train_y)
+        model.save(f"../output/{model.__class__.__name__}.joblib")
+        models.append(model)
+    print("Training finished.")
+
+    ### Postprocessing (model -> postprocessing -> metrics)
+    print("Postprocessing...")
+    for model in models:
+        predicted_y_array = model.predict(dataset_split.test_x)
+        predicted_y = pd.DataFrame(
+            predicted_y_array,
+            columns=[f"{header}_predicted" for header in LABELS_HEADERS],
+        )
+        create_prediction_table(
+            dataset_split.test_x, dataset_split.test_y, predicted_y, save_to_file=True
+        )
+
+    print("Postprocessing finished.")
 
 
 if __name__ == "__main__":
