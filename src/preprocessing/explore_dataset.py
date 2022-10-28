@@ -3,7 +3,7 @@ import numpy as np
 import os
 from matplotlib import pyplot as plt
 
-RESOURCES_PATH = "../resources/"
+RESOURCES_PATH = "../../resources/"
 
 
 class CalculateStats:
