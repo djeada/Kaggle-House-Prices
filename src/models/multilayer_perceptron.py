@@ -21,9 +21,8 @@ class MultilayerPerceptron(BaseModel):
             "learning_rate": ["adaptive"],
         },
     ):
-        self.model = GridSearchCV(
-            MLPClassifier(max_iter=2000), parameters, cv=3, scoring="accuracy"
-        )
+        perceptron = MLPClassifier(max_iter=2000)
+        self.model = GridSearchCV(perceptron, parameters, cv=3, scoring="accuracy")
 
     def fit(self, x, y):
         """

@@ -1,6 +1,7 @@
 import pandas as pd
 
 from src.models.gradient_boost import GradientBoost
+from src.models.lasso import Lasso
 from src.models.linear_regression import LinearRegression
 from src.models.multilayer_perceptron import MultilayerPerceptron
 from src.models.random_forest import RandomForest
@@ -9,9 +10,12 @@ from src.postprocessing.performance_metrics import (
     calculate_r2_score,
     calculate_rmse,
     calculate_nrmse,
-    calculate_mae,
 )
-from src.preprocessing.clean_dataset import clean_data
+from src.preprocessing.clean_dataset import (
+    clean_data,
+    EncodeCategoricalVariablesFilter,
+    FillMissingValuesFilter,
+)
 from src.preprocessing.split_dataset import split_dataset
 
 TRAIN_DATASET_PATH = "../data/train.csv"
@@ -29,7 +33,13 @@ def main():
 
     print("Cleaning dataset...")
     clean_dataset = clean_data(raw_dataset)
-    clean_test_dataset = clean_data(raw_test_dataset)
+    clean_test_dataset = clean_data(
+        raw_test_dataset,
+        filters_types=(
+            EncodeCategoricalVariablesFilter,
+            FillMissingValuesFilter,
+        ),
+    )
     print("Dataset cleaned.")
 
     # Split the dataset into train and test sets
@@ -47,9 +57,10 @@ def main():
 
     model_types = [
         LinearRegression,
-        # MultilayerPerceptron,
+        MultilayerPerceptron,
         RandomForest,
         GradientBoost,
+        Lasso,
     ]
 
     models = []

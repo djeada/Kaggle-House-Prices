@@ -20,7 +20,10 @@ class LinearRegression(BaseModel):
             "copy_X": [True, False],
         },
     ):
-        self.model = GridSearchCV(LR(), parameters, verbose=1, scoring="r2")
+        linear_regression = LR()
+        self.model = GridSearchCV(
+            linear_regression, parameters, verbose=1, scoring="r2"
+        )
 
     def fit(self, x, y):
         """

@@ -1,8 +1,11 @@
 from abc import abstractmethod, ABC
-from typing import Iterable
+from collections import Counter
+from typing import Iterable, List
 
 import numpy as np
 import pandas as pd
+from scipy.special import boxcox1p
+from scipy.stats import boxcox_normmax
 
 
 class BaseFilter(ABC):
@@ -65,9 +68,39 @@ class EncodeCategoricalVariablesFilter(BaseFilter):
         return data_frame
 
 
+class RemoveOutliersFilter(BaseFilter):
+    def detect_outliers(self, data_frame: pd.DataFrame, n=5) -> List[int]:
+        numerical_features = data_frame.select_dtypes(include=[np.number]).columns
+        outlier_indices = []
+        for feature in numerical_features:
+            q1 = np.percentile(data_frame[feature], 25)
+            q3 = np.percentile(data_frame[feature], 75)
+            iqr = q3 - q1
+            outlier_step = 1.5 * iqr
+            outlier_list_col = data_frame[
+                (data_frame[feature] < q1 - outlier_step)
+                | (data_frame[feature] > q3 + outlier_step)
+            ].index
+            outlier_indices.extend(outlier_list_col)
+
+        result = [i for i in set(outlier_indices) if outlier_indices.count(i) > n]
+        return result
+
+    def run(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+        """
+        Drops the given columns from the data frame.
+
+        :param data_frame: The data frame to run the filter on.
+        :return: The filtered data frame.
+        """
+        outliers_to_drop = self.detect_outliers(data_frame)
+        return data_frame.drop(outliers_to_drop, axis=0)
+
+
 def clean_data(
     data_frame: pd.DataFrame,
     filters_types: Iterable[BaseFilter] = (
+        RemoveOutliersFilter,
         EncodeCategoricalVariablesFilter,
         FillMissingValuesFilter,
     ),

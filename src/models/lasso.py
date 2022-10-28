@@ -1,32 +1,18 @@
 import joblib
+from sklearn.linear_model import Lasso as SklearnLasso
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import LabelEncoder
 
 from src.models.base_model import BaseModel
-from xgboost import XGBClassifier
 
 
-class GradientBoost(BaseModel):
+class Lasso(BaseModel):
     """
-    Gradient Boosting implementation using sklearn XGBoost.
+    Lasso implementation using sklearn.
     """
 
-    def __init__(
-        self,
-        parameters={
-            "n_estimators": [100, 200, 300],
-            "learning_rate": [0.1, 0.2, 0.3],
-            "max_depth": [3, 5, 7],
-        },
-    ):
-        self.encoder = LabelEncoder()
-        xg_boost = XGBClassifier(objective="reg:linear", random_state=42)
-        self.model = GridSearchCV(
-            xg_boost,
-            parameters,
-            verbose=1,
-            scoring="r2",
-        )
+    def __init__(self, parameters={"alpha": [0.02, 0.024, 0.025, 0.026, 0.03]}):
+        lasso = SklearnLasso()
+        self.model = GridSearchCV(lasso, parameters, verbose=1, scoring="r2")
 
     def fit(self, x, y):
         """
@@ -36,7 +22,7 @@ class GradientBoost(BaseModel):
         :param y: The output data.
         :return: The trained model.
         """
-        self.model.fit(x, self.encoder.fit_transform(y))
+        self.model.fit(x, y)
 
     def predict(self, x):
         """
@@ -45,7 +31,7 @@ class GradientBoost(BaseModel):
         :param x: The input data.
         :return: The predicted labels.
         """
-        return self.encoder.inverse_transform(self.model.predict(x))
+        return self.model.predict(x)
 
     def save(self, path):
         """
