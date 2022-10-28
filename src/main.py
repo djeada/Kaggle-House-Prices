@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from src.models.gradient_boost import GradientBoost
@@ -105,10 +106,10 @@ def main():
     print(f"Best model: {best_model['model']}")
     print("Postprocessing finished.")
 
-    # use best model on test data
+    # use the best model on test data
     best_model = models[scores.index(best_model)]
     test_x_array = clean_test_dataset.to_numpy()
-    predicted_y_array = best_model.predict(test_x_array)
+    predicted_y_array = np.atleast_2d(best_model.predict(test_x_array)).T
 
     output_data_frame = clean_test_dataset.filter(["Id"], axis=1)
     for i, header in enumerate(LABELS_HEADERS):
