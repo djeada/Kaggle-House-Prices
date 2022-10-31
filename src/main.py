@@ -28,6 +28,8 @@ def main():
 
     ### Preprocessing (input dataset -> preprcoessing -> ready dataset)
     print("Preprocessing...")
+    output_dir = Path('../output')
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     raw_dataset = pd.read_csv(TRAIN_DATASET_PATH)
     raw_test_dataset = pd.read_csv(TEST_DATA_PATH)
