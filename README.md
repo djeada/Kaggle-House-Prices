@@ -1,5 +1,5 @@
 # Kaggle House Prices
-Exemplary solution to Kaggle's Data Science competition: House Prices - Advanced Regression Techniques
+Exemplary solution to Kaggle's Data Science competition: House Prices - Advanced Regression Techniques.
 
 ![Capture](https://storage.googleapis.com/kaggle-competitions/kaggle/5407/media/housesbanner.png)
 
