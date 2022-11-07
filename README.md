@@ -1,6 +1,8 @@
 # Kaggle House Prices
 Exemplary solution to Kaggle's Data Science competition: House Prices - Advanced Regression Techniques.
 
+This is a regression problem in which we forecast the prices of houses depending on certain information about them (such as size). 
+
 ![Capture](https://storage.googleapis.com/kaggle-competitions/kaggle/5407/media/housesbanner.png)
 
 ## Introduction
